@@ -1,7 +1,7 @@
 
 # Prerequisites
 ## EMR Prerequisites
-1. Create EMR cluster with Spark, Hive and Hadoop enabled. Refer the template at [cloudformation/hudi-workshop-emr-spark.yaml](../cloudformation/hudi-workshop-emr-spark.yaml) for EMRSparkHudiCluster.
+1. Create EMR cluster with Spark, Hive and Hadoop enabled. Refer EMRSparkHudiCluster in the template at [cloudformation/hudi-workshop-emr-spark.yaml](../cloudformation/hudi-workshop-emr-spark.yaml).
 2. SSH to master node and execute command to update log level to [log4j.rootCategory=WARN,console] --this is an optional step 
 
 ```
@@ -10,7 +10,20 @@ vi /etc/spark/conf/log4j.properties
 ```
 3. Ensure that EMR role has permission on Kinesis and S3. 
 ## Spark Submit Prerequisite
-1. Build and copy jar by running spark-streaming-kinesis/build.sh. 
+1.  Build Environment
+```
+java --version
+openjdk 15.0.2 2021-01-19
+OpenJDK Runtime Environment Corretto-15.0.2.7.1 (build 15.0.2+7)
+OpenJDK 64-Bit Server VM Corretto-15.0.2.7.1 (build 15.0.2+7, mixed mode, sharing)
+
+sbt --version
+sbt version in this project: 1.5.5
+sbt script version: 1.5.5
+
+```
+
+3. Build and copy jar by running spark-streaming-kinesis/build.sh. 
 ```
 ./build.sh <S3-Bucket-Name>
 ```

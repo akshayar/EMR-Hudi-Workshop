@@ -157,6 +157,7 @@ object SparkKinesisConsumerHudiProcessor {
                         .option(DataSourceWriteOptions.HIVE_PARTITION_FIELDS_OPT_KEY, hudiHiveTablePartitionKey)
                         .option("hoodie.datasource.hive_sync.assume_date_partitioning", "false")
                         .option(DataSourceWriteOptions.HIVE_PARTITION_EXTRACTOR_CLASS_OPT_KEY, classOf[MultiPartKeysValueExtractor].getName)
+                        .option(DataSourceWriteOptions.HIVE_DATABASE_OPT_KEY,"hudi")
                         .mode("append")
                         .save(hudiTablePath);
                 }else{
