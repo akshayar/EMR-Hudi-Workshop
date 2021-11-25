@@ -9,7 +9,20 @@ vi /etc/spark/conf/log4j.properties
 
 ```
 ## Spark Submit Prerequisite
-1. Build and copy jar by running spark-streaming-kinesis/build.sh. 
+1.  Build Environment
+```
+java --version
+openjdk 15.0.2 2021-01-19
+OpenJDK Runtime Environment Corretto-15.0.2.7.1 (build 15.0.2+7)
+OpenJDK 64-Bit Server VM Corretto-15.0.2.7.1 (build 15.0.2+7, mixed mode, sharing)
+
+sbt --version
+sbt version in this project: 1.5.5
+sbt script version: 1.5.5
+
+```
+
+3. Build and copy jar by running spark-streaming-kinesis/build.sh. 
 ```
 ./build.sh <S3-Bucket-Name>
 ```
