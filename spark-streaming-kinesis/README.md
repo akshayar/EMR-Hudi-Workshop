@@ -8,6 +8,7 @@
 vi /etc/spark/conf/log4j.properties 
 
 ```
+3. Ensure that EMR role has permission on Kinesis and S3. 
 ## Spark Submit Prerequisite
 1. Build and copy jar by running spark-streaming-kinesis/build.sh. 
 ```
@@ -177,3 +178,6 @@ spark-shell \
 --jars /usr/lib/hudi/hudi-spark-bundle.jar,/usr/lib/spark/external/lib/spark-avro.jar \
 --packages org.apache.spark:spark-streaming-kinesis-asl_2.11:2.4.5,com.qubole.spark:spark-sql-kinesis_2.11:1.2.0_spark-2.4
 ```
+# Possible Issues 
+1.  Could not open client transport with JDBC Uri: jdbc:hive2://localhost:10000: java.net.ConnectException: Connection refused (Connection refused) --- The error message could be distracting. Since Glue Catelog integration is enabled , the job should not connect to Hive. In my case the error only happened in Mumbai region while it worked in Virginia ang Oregon. I had "Lake Formation" enabled in which case a role reading/writing to Glue table should have permission granted on Lake Formation. I granted EMR_EC2_DefaultRole role permission to create table, read and write on "default" database in Lake Formation. default database since without explicitely specifying the table with HIVE_DATABASE_OPT_KEY , HUDI writes to default database. 
+2. 
