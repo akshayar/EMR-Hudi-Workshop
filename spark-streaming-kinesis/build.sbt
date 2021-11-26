@@ -1,4 +1,4 @@
-name := "Spark-Structured-Streaming-Kinesis-Hudi"
+name := "spark-structured-streaming-kinesis-hudi"
 
 version := "1.0"
 scalaVersion := "2.11.12"

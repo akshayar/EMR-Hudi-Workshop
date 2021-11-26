@@ -9,18 +9,7 @@ sbt clean package
 status=$?
 if [ $status == 0 ] 
 then
-    sbt assembly
-    assembly_status=$?
-    if [ $assembly_status == 0 ] 
-    then
-        
-        aws s3 cp target/scala-2.11/Spark-Structured-Streaming-Kinesis-Hudi-assembly-1.0.jar s3://$S3_BUCKET/
-        
-    else
-    
-        echo "Assembly Failed"
-    
-    fi
+    aws s3 cp target/scala-2.11/spark-structured-streaming-kinesis-hudi_2.11-1.0.jar s3://$S3_BUCKET/
 else
 
     echo "Compilation Failed"
