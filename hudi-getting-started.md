@@ -69,7 +69,7 @@ hoodie.table.create.schema={"type"\:"record","name"\:"topLevelRecord","fields"\:
 
 
 ```
-![Folder Structure](imges/hudi-folder.png)
+![Folder Structure](./images/hudi-folder.png)
 
 
 ## Insert Data
