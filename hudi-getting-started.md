@@ -187,7 +187,7 @@ insert into hudi_sample_table_mor partition(dt = '2021-11-29') select 2, 'Second
 }
 ```
 ### Content of .hoodie/20211129131046.commit for MOR table
-```
+```json
 {
   "partitionToWriteStats": {
     "default": [
