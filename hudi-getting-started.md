@@ -10,9 +10,8 @@ spark-sql \
 ```
 
 ## Create Table
-```
--- Apache Hudi
--- create a managed cow table
+### create a COW table
+```sql
 create table if not exists hudi_sample_table_cow (
     id bigint,    name string,    dt string,    hour string 
 ) using hudi
@@ -37,9 +36,10 @@ hoodie.table.name=hudi_sample_table_cow
 hoodie.table.create.schema={"type"\:"record","name"\:"topLevelRecord","fields"\:[{"name"\:"_hoodie_commit_time","type"\:["string","null"]},{"name"\:"_hoodie_commit_seqno","type"\:["string","null"]},{"name"\:"_hoodie_record_key","type"\:["string","null"]},{"name"\:"_hoodie_partition_path","type"\:["string","null"]},{"name"\:"_hoodie_file_name","type"\:["string","null"]},{"name"\:"id","type"\:["long","null"]},{"name"\:"name","type"\:["string","null"]},{"name"\:"dt","type"\:["string","null"]},{"name"\:"hh","type"\:["string","null"]}]}
 
 
+```
+### create a MOR table
+```sql
 
-
--- create an external mor table
 create table if not exists hudi_sample_table_mor (
     id bigint,    name string,    dt string ,    hour string 
 ) using hudi
@@ -67,7 +67,8 @@ hoodie.table.create.schema={"type"\:"record","name"\:"topLevelRecord","fields"\:
 
 
 ```
-![Folder Structure](imges/hudi-folder.png)
+
+![Folder Structure](./images/hudi-folder.png)
 
 
 ## Insert Data
@@ -96,8 +97,9 @@ select * from hudi_sample_table_mor_rt  ;
 
 
 ```
-```
---Content of .hoodie/20211129124353.commit for COW table
+### Content of .hoodie/20211129124353.commit for COW table
+```json
+
 {
   "partitionToWriteStats": {
     "default": [
@@ -152,9 +154,9 @@ select * from hudi_sample_table_mor_rt  ;
     "default"
   ]
 }
-
-
---- Content of   .hoodie/20211129131046.deltacommit for MOR table
+```
+### Content of .hoodie/20211129131046.commit for MOR table
+```json
 {
   "partitionToWriteStats": {
     "default": [
