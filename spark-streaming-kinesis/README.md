@@ -122,7 +122,7 @@ DMS publishes the changes to Kineiss
 } 
 ```
 ## Spark Scala Code
-[kinesis.hudi.SparkKinesisConsumerHudiProcessor](src/main/scala/kinesis/hudi/SparkKinesisConsumerHudiProcessor.scala)
+[kinesis.hudi.cdc.SparkKinesisConsumerHudiProcessor](src/main/scala/kinesis/hudi/cdc/SparkKinesisConsumerHudiProcessor.scala)
 
 ## Spark Submit 
 
@@ -161,7 +161,7 @@ The filePath here is the path to the file which got added to S3 by DMS. An S3 ev
 }
 ```
 ## Spark Scala Code
-[kinesis.hudi.SparkKinesisFilePathConsumerHudiProcessor](src/main/scala/kinesis/hudi/SparkKinesisFilePathConsumerHudiProcessor.scala)
+[kinesis.hudi.cdc.SparkKinesisFilePathConsumerHudiProcessor](src/main/scala/kinesis/hudi/cdc/SparkKinesisFilePathConsumerHudiProcessor.scala)
 
 ## Spark Submit 
     

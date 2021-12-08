@@ -1,4 +1,4 @@
-package kinesis.hudi
+package kinesis.hudi.cdc
 
 // Copy to run from Spark Shell ---start
 
