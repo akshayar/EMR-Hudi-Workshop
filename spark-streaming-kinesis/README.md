@@ -51,7 +51,7 @@ spark-submit \
 --conf "spk.dynamicAllocation.maxExecutors=10" \
 --jars /usr/lib/hudi/hudi-spark-bundle.jar,/usr/lib/spark/external/lib/spark-avro.jar \
 --packages org.apache.spark:spark-streaming-kinesis-asl_2.11:2.4.5,com.qubole.spark:spark-sql-kinesis_2.11:1.2.0_spark-2.4 \
---class kinesis.hudi.latefile.SparkKinesisConsumerHudiProcessorNoSchema spark-structured-streaming-kinesis-hudi_2.11-1.0.jar \
+--class <kinesis.hudi.latefile.SparkKinesisConsumerHudiProcessorNoSchema/kinesis.hudi.latefile.SparkKinesisConsumerHudiProcessor> spark-structured-streaming-kinesis-hudi_2.11-1.0.jar \
 <bucket-name>  <stream-name> <region> <COW/MOR> <table_name> <LATEST/TRIM_HORIZON>
 ```
 Example
@@ -61,15 +61,24 @@ spark-submit \
 --conf "spark.sql.hive.convertMetastoreParquet=false" \
 --conf "spk.dynamicAllocation.maxExecutors=10" \
 --jars /usr/lib/hudi/hudi-spark-bundle.jar,/usr/lib/spark/external/lib/spark-avro.jar \
---packages org.apache.spark:spark-streaming-kinesis-asl_2.11:2.4.5,com.qubole.spark:spark-sql-kinesis_2.11:1.2.0_spark-2.4 \
---class kinesis.hudi.latefile.SparkKinesisConsumerHudiProcessorNoSchema spark-structured-streaming-kinesis-hudi_2.11-1.0.jar \
+--packages org.apache.spark:spark-streaming-kinesis-asl_2.12:3.1.1,com.qubole.spark:spark-sql-kinesis_2.12:1.2.0_spark-3.0 \
+--class kinesis.hudi.latefile.SparkKinesisConsumerHudiProcessorNoSchema spark-structured-streaming-kinesis-hudi_2.12-1.0.jar \
 akshaya-firehose-test data-stream-ingest ap-south-1 COW trade_event_late_simulation_ns LATEST
 	
+
+spark-submit \
+--conf "spark.serializer=org.apache.spark.serializer.KryoSerializer" \
+--conf "spark.sql.hive.convertMetastoreParquet=false" \
+--conf "spk.dynamicAllocation.maxExecutors=10" \
+--jars /usr/lib/hudi/hudi-spark-bundle.jar,/usr/lib/spark/external/lib/spark-avro.jar \
+--packages org.apache.spark:spark-streaming-kinesis-asl_2.12:3.1.1,com.qubole.spark:spark-sql-kinesis_2.12:1.2.0_spark-3.0 \
+--class kinesis.hudi.latefile.SparkKinesisConsumerHudiProcessor spark-structured-streaming-kinesis-hudi_2.12-1.0.jar \
+akshaya-firehose-test data-stream-ingest ap-south-1 COW trade_event_simulation_fixed LATEST
 	
 ```
 
 ## Spark Shell
-Run the shell with command below and copy paste code from   [kinesis.hudi.latefile.SparkKinesisConsumerHudiProcessor](src/main/scala/kinesis/hudi/latefile/SparkKinesisConsumerHudiProcessor.scala). The code that needs to be copied is between  (Spark Shell ---Start ) and (Spark Shell ---End ). Also ensure that the you hard code the paremeters like s3_bucket, streamName, region ,tableType and hudiTableNamePrefix.  
+Run the shell with command below and copy paste code from   [kinesis.hudi.latefile.SparkKinesisConsumerHudiProcessor](src/main/scala/kinesis/hudi/latefile/SparkKinesisConsumerHudiProcessor.scala) or [kinesis.hudi.latefile.SparkKinesisConsumerHudiProcessorNoSchema](src/main/scala/kinesis/hudi/latefile/SparkKinesisConsumerHudiProcessorNoSchema.scala). The code that needs to be copied is between  (Spark Shell ---Start ) and (Spark Shell ---End ). Also ensure that the you hard code the paremeters like s3_bucket, streamName, region ,tableType and hudiTableNamePrefix.  
 
 ```
 spark-shell \

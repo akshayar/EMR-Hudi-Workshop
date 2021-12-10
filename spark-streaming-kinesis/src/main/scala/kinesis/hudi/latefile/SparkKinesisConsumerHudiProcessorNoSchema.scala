@@ -57,17 +57,26 @@ object SparkKinesisConsumerHudiProcessorNoSchema {
     // Spark Shell ---start 
     import spark.implicits._
     // Spark Shell -- hardcode these parameters
-    val s3_bucket=args(0)//"akshaya-firehose-test"//
-    val streamName=args(1)//"data-stream-ingest"//
-    val region=args(2)//"ap-south-1"//
-    val tableType=args(3)//"COW"//
-    var hudiTableNamePrefix = args(4)//"hudi_trade_info_ns"//
-    var hudiTableName=hudiTableNamePrefix+"_cow"
-    var dsWriteOptionType=DataSourceWriteOptions.COW_STORAGE_TYPE_OPT_VAL
+    var s3_bucket="akshaya-firehose-test"//args(0)//
+    var streamName="data-stream-ingest"//args(1)//
+    var region="ap-south-1"//args(2)//
+    var tableType="COW"//args(3)//
+    var hudiTableNamePrefix = "hudi_trade_info_ns"//args(4)//
     var iteratorPos="TRIM_HORIZON"
+    if(args.length > 0){
+      s3_bucket=args(0)//"akshaya-firehose-test"//
+      streamName=args(1)//"data-stream-ingest"//
+      region=args(2)//"ap-south-1"//
+      tableType=args(3)//"COW"//
+      hudiTableNamePrefix = args(4)//"hudi_trade_info_ns"//
+    }
+    
     if(args.length > 5){
       iteratorPos=args(5)
     }
+    var hudiTableName=hudiTableNamePrefix+"_cow"
+    var dsWriteOptionType=DataSourceWriteOptions.COW_STORAGE_TYPE_OPT_VAL
+    
     if(tableType.equals("COW")){
        hudiTableName = hudiTableNamePrefix+"_cow"
        dsWriteOptionType=DataSourceWriteOptions.COW_STORAGE_TYPE_OPT_VAL
@@ -92,6 +101,13 @@ object SparkKinesisConsumerHudiProcessorNoSchema {
     println("checkpoint_path:"+checkpoint_path)
     println("endpointUrl:"+endpointUrl)
     println("streamName:"+streamName)
+
+    //Read Schema of table
+    val sql=s"select * from $hudiTableName where 1 != 1"
+    println("sql:"+sql)
+    val currentDF=spark.sql(sql)
+    var dropDF=currentDF.drop(currentDF.columns.filter(_.startsWith("_hoodie")): _*)
+    val schemeExisting=dropDF.schema
   
     val streamingInputDF = (spark
                     .readStream .format("kinesis") 
@@ -104,30 +120,46 @@ object SparkKinesisConsumerHudiProcessorNoSchema {
                   
     jsonDS.printSchema()
     val query = (jsonDS.writeStream.foreachBatch{ (batchDS: Dataset[String], _: Long) => {
-                  batchDS.show()
+                 batchDS.show()
               if(!batchDS.rdd.isEmpty){
                   batchDS.show()
-                  //Infer Schema
-                  val schema: StructType = spark.read.json(batchDS.select("value").as[String]).schema
-                  print(schema)
-                  //Read data from the schema infered above
-                  var parDF=(batchDS.withColumn("jsonData",from_json(col("value"),schema))
-                              .select(col("jsonData.*")))
-                  parDF.printSchema()
-                  parDF=parDF.select(parDF.columns.map(x => col(x).as(x.toLowerCase)): _*)
-                  parDF=parDF.filter(parDF.col("tradeId").isNotNull) 
-                  parDF.printSchema()
-                  parDF.show()   
-                  parDF = parDF.withColumn(hudiTableRecordKey, concat(col("tradeId"), lit("#"), col("timestamp")))
+                  //Infer Schema from incomeing record
+                  var schemaNew: StructType = spark.read.json(batchDS.select("value").as[String]).schema
+                   println("New Schema"+schemaNew)
+                  //Merge new schema with exising ensuring order of columns
+                  var schemaNewMap=schemaNew.fields.map(f => (f.name.toLowerCase -> f)).toMap
+                  var schemaExistingMap=schemeExisting.fields.map(f => (f.name.toLowerCase -> f)).toMap  
+                  var additionalNames=schemaNewMap.keySet.diff(schemaExistingMap.keySet)
+                  var listName=List() ++ schemaExistingMap.keys ++ additionalNames
+                  var useSchemaType= new StructType
+                  for (name <- listName ){ 
+                      if(schemaNewMap.contains(name)){
+                        useSchemaType=useSchemaType.add(schemaNewMap(name))
 
-                  //from_unixtime(stackoverflow_Tags.col("creationDate").divide(1000))
+                      }else{
+                        useSchemaType=useSchemaType.add(schemaExistingMap(name))
+                      }
+                  }
+                 println("Old Schema"+schemeExisting)
+                 println("New Schema"+useSchemaType)              
+                  //Read data from the schema infered above
+                  var parDF=(batchDS.withColumn("jsonData",from_json(col("value"),useSchemaType))
+                              .select(col("jsonData.*")))
+                  parDF=parDF.select(parDF.columns.map(x => col(x).as(x.toLowerCase)): _*)
+                  parDF.show()  
+                  parDF=parDF.filter(parDF.col("tradeId").isNotNull) 
+                                
+                  parDF = parDF.withColumn(hudiTableRecordKey, concat(col("tradeId"), lit("#"), col("timestamp")))
+                 
                   parDF = parDF.withColumn("trade_datetime", from_unixtime(parDF.col("timestamp")))
                   parDF = parDF.withColumn("day",dayofmonth($"trade_datetime").cast(StringType)).withColumn("hour",hour($"trade_datetime").cast(StringType))
                   parDF = parDF.withColumn(hudiTablePartitionKey,concat(lit("day="),$"day",lit("/hour="),$"hour"))
-                  parDF.printSchema()
+                  parDF.show()  
+
                   if(!parDF.rdd.isEmpty){
+                    println("Saving data ")
                     parDF.select("day","hour",hudiTableRecordKey,"quantity").show()
-                    parDF.write.format("org.apache.hudi")
+                    val result=parDF.write.format("org.apache.hudi")
                           .option("hoodie.datasource.write.table.type", dsWriteOptionType)
                           .option(DataSourceWriteOptions.RECORDKEY_FIELD_OPT_KEY, hudiTableRecordKey)
                           .option(DataSourceWriteOptions.PARTITIONPATH_FIELD_OPT_KEY, hudiTablePartitionKey)
@@ -141,8 +173,9 @@ object SparkKinesisConsumerHudiProcessorNoSchema {
                           .option(DataSourceWriteOptions.HIVE_PARTITION_EXTRACTOR_CLASS_OPT_KEY, classOf[MultiPartKeysValueExtractor].getName)
                           .mode("append")
                           .save(hudiTablePath);
+                    println("Saved data "+hudiTablePath+":"+result)
                   }else{
-                    print("Empty DF, nothing to write")
+                    println("Empty DF, nothing to write")
                   }
 
             }

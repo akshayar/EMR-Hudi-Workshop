@@ -107,6 +107,7 @@ public class RandomGenerator {
 		template=template.replaceAll("EPOCH", System.currentTimeMillis()/1000+"");
 		template=template.replaceAll("DATE_yyMMddHHmm", getEPOCH_yyMMddHHmm());
 		template=template.replaceAll("DATE_STRING", new Date()+"");
+		template=template.replaceAll("RANDOM_BOOL",generateRandomBoolean()+"");
 		
 		
 		return template;
@@ -150,6 +151,9 @@ public class RandomGenerator {
 		
 	}
 
+	public static boolean generateRandomBoolean() {
+		return random.nextBoolean();
+	}
 
 	public static String generateRandomString(int targetStringLength) {
 		int leftLimit = 97; // letter 'a'

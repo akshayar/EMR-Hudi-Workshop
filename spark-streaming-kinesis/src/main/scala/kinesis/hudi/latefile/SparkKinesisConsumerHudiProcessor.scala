@@ -64,6 +64,10 @@ object SparkKinesisConsumerHudiProcessor {
     var hudiTableNamePrefix = args(4)//"hudi_trade_info"//
     var hudiTableName=hudiTableNamePrefix+"_cow"
     var dsWriteOptionType=DataSourceWriteOptions.COW_STORAGE_TYPE_OPT_VAL
+    var iteratorPos="TRIM_HORIZON"
+    if(args.length > 5){
+      iteratorPos=args(5)
+    }
     if(tableType.equals("COW")){
        hudiTableName = hudiTableNamePrefix+"_cow"
        dsWriteOptionType=DataSourceWriteOptions.COW_STORAGE_TYPE_OPT_VAL
@@ -91,7 +95,7 @@ object SparkKinesisConsumerHudiProcessor {
     val streamingInputDF = (spark
                     .readStream .format("kinesis") 
                     .option("streamName", streamName) 
-                    .option("startingposition", "TRIM_HORIZON")
+                    .option("startingposition", iteratorPos)
                     .option("endpointUrl", endpointUrl)
                     .load())
  
@@ -104,7 +108,8 @@ object SparkKinesisConsumerHudiProcessor {
         StructField("timestamp",StringType,true),
         StructField("description",StringType,true),
         StructField("traderName",StringType,true),
-        StructField("traderFirm",StringType,true)
+        StructField("traderFirm",StringType,true),
+        StructField("traderFirmNew",StringType,true)
       ))
   
     
