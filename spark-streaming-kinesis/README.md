@@ -17,7 +17,7 @@ vi /etc/spark/conf/log4j.properties
 2. SSH to master node and copy jar which was pushed to S3.
     
 ```
-   aws s3 cp s3://<S3-Bucket-Name>/spark-structured-streaming-kinesis-hudi_2.11-1.0.jar .   
+   aws s3 cp s3://<S3-Bucket-Name>/spark-structured-streaming-kinesis-hudi_2.12-1.0.jar .   
 ```
 
 # Use Case 1 - Events Published to Kinesis with simulation of late arriving events
@@ -51,7 +51,7 @@ spark-submit \
 --conf "spk.dynamicAllocation.maxExecutors=10" \
 --jars /usr/lib/hudi/hudi-spark-bundle.jar,/usr/lib/spark/external/lib/spark-avro.jar \
 --packages org.apache.spark:spark-streaming-kinesis-asl_2.11:2.4.5,com.qubole.spark:spark-sql-kinesis_2.11:1.2.0_spark-2.4 \
---class <kinesis.hudi.latefile.SparkKinesisConsumerHudiProcessorNoSchema/kinesis.hudi.latefile.SparkKinesisConsumerHudiProcessor> spark-structured-streaming-kinesis-hudi_2.11-1.0.jar \
+--class <kinesis.hudi.latefile.SparkKinesisConsumerHudiProcessorNoSchema/kinesis.hudi.latefile.SparkKinesisConsumerHudiProcessor> spark-structured-streaming-kinesis-hudi_2.12-1.0.jar \
 <bucket-name>  <stream-name> <region> <COW/MOR> <table_name> <LATEST/TRIM_HORIZON>
 ```
 Example
@@ -85,7 +85,7 @@ spark-shell \
 --conf 'spark.serializer=org.apache.spark.serializer.KryoSerializer' \
 --conf 'spark.sql.hive.convertMetastoreParquet=false' \
 --jars /usr/lib/hudi/hudi-spark-bundle.jar,/usr/lib/spark/external/lib/spark-avro.jar \
---packages org.apache.spark:spark-streaming-kinesis-asl_2.11:2.4.5,com.qubole.spark:spark-sql-kinesis_2.11:1.2.0_spark-2.4
+--packages org.apache.spark:spark-streaming-kinesis-asl_2.12:3.1.1,com.qubole.spark:spark-sql-kinesis_2.12:1.2.0_spark-3.0
 ```
 
 # Use Case 2 - Consume CDC events Published to Kinesis by DMS
@@ -129,8 +129,8 @@ spark-submit \
 --conf "spark.sql.hive.convertMetastoreParquet=false" \
 --conf "spk.dynamicAllocation.maxExecutors=10" \
 --jars /usr/lib/hudi/hudi-spark-bundle.jar,/usr/lib/spark/external/lib/spark-avro.jar \
---packages org.apache.spark:spark-streaming-kinesis-asl_2.11:2.4.5,com.qubole.spark:spark-sql-kinesis_2.11:1.2.0_spark-2.4 \
---class kinesis.hudi.SparkKinesisConsumerHudiProcessor spark-structured-streaming-kinesis-hudi_2.11-1.0.jar \
+--packages org.apache.spark:spark-streaming-kinesis-asl_2.12:3.1.1,com.qubole.spark:spark-sql-kinesis_2.12:1.2.0_spark-3.0 \
+--class kinesis.hudi.SparkKinesisConsumerHudiProcessor spark-structured-streaming-kinesis-hudi_2.12-1.0.jar \
 <bucket-name>  <stream-name> <region> <COW/MOR> <table_name>
 	
 
@@ -143,7 +143,7 @@ spark-shell \
 --conf 'spark.serializer=org.apache.spark.serializer.KryoSerializer' \
 --conf 'spark.sql.hive.convertMetastoreParquet=false' \
 --jars /usr/lib/hudi/hudi-spark-bundle.jar,/usr/lib/spark/external/lib/spark-avro.jar \
---packages org.apache.spark:spark-streaming-kinesis-asl_2.11:2.4.5,com.qubole.spark:spark-sql-kinesis_2.11:1.2.0_spark-2.4
+--packages org.apache.spark:spark-streaming-kinesis-asl_2.12:3.1.1,com.qubole.spark:spark-sql-kinesis_2.12:1.2.0_spark-3.0
 
 ```
 
@@ -168,8 +168,8 @@ spark-submit \
 --conf "spark.sql.hive.convertMetastoreParquet=false" \
 --conf "spk.dynamicAllocation.maxExecutors=10" \
 --jars /usr/lib/hudi/hudi-spark-bundle.jar,/usr/lib/spark/external/lib/spark-avro.jar \
---packages org.apache.spark:spark-streaming-kinesis-asl_2.11:2.4.5,com.qubole.spark:spark-sql-kinesis_2.11:1.2.0_spark-2.4 \
---class kinesis.hudi.SparkKinesisFilePathConsumerHudiProcessor spark-structured-streaming-kinesis-hudi_2.11-1.0.jar \
+--packages org.apache.spark:spark-streaming-kinesis-asl_2.12:3.1.1,com.qubole.spark:spark-sql-kinesis_2.12:1.2.0_spark-3.0 \
+--class kinesis.hudi.SparkKinesisFilePathConsumerHudiProcessor spark-structured-streaming-kinesis-hudi_2.12-1.0.jar \
 <bucket-name>  <stream-name> <region> <COW/MOR> <table_name>
 	
 
@@ -185,5 +185,5 @@ spark-shell \
 --conf 'spark.serializer=org.apache.spark.serializer.KryoSerializer' \
 --conf 'spark.sql.hive.convertMetastoreParquet=false' \
 --jars /usr/lib/hudi/hudi-spark-bundle.jar,/usr/lib/spark/external/lib/spark-avro.jar \
---packages org.apache.spark:spark-streaming-kinesis-asl_2.11:2.4.5,com.qubole.spark:spark-sql-kinesis_2.11:1.2.0_spark-2.4
+--packages org.apache.spark:spark-streaming-kinesis-asl_2.12:3.1.1,com.qubole.spark:spark-sql-kinesis_2.12:1.2.0_spark-3.0
 ```
