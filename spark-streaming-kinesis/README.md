@@ -50,7 +50,7 @@ spark-submit \
 --conf "spark.sql.hive.convertMetastoreParquet=false" \
 --conf "spk.dynamicAllocation.maxExecutors=10" \
 --jars /usr/lib/hudi/hudi-spark-bundle.jar,/usr/lib/spark/external/lib/spark-avro.jar \
---packages org.apache.spark:spark-streaming-kinesis-asl_2.11:2.4.5,com.qubole.spark:spark-sql-kinesis_2.11:1.2.0_spark-2.4 \
+--packages org.apache.spark:spark-streaming-kinesis-asl_2.12:3.1.1,com.qubole.spark:spark-sql-kinesis_2.12:1.2.0_spark-3.0 \
 --class <kinesis.hudi.latefile.SparkKinesisConsumerHudiProcessorNoSchema/kinesis.hudi.latefile.SparkKinesisConsumerHudiProcessor> spark-structured-streaming-kinesis-hudi_2.12-1.0.jar \
 <bucket-name>  <stream-name> <region> <COW/MOR> <table_name> <LATEST/TRIM_HORIZON>
 ```
