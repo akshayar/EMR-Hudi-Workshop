@@ -31,7 +31,7 @@ sbt script version: 1.5.5
 2. SSH to master node and copy jar which was pushed to S3.
     
 ```
-   aws s3 cp s3://<S3-Bucket-Name>/spark-structured-streaming-kinesis-hudi_2.11-1.0.jar .   
+   aws s3 cp s3://<S3-Bucket-Name>/spark-structured-streaming-kinesis-hudi_2.12-1.0.jar .   
 ```
 
 # Use Case 1 - Events Published to Kinesis with simulation of late arriving events
@@ -63,21 +63,22 @@ spark-submit \
 --conf "spark.sql.hive.convertMetastoreParquet=false" \
 --conf "spk.dynamicAllocation.maxExecutors=10" \
 --jars /usr/lib/hudi/hudi-spark-bundle.jar,/usr/lib/spark/external/lib/spark-avro.jar \
---packages org.apache.spark:spark-streaming-kinesis-asl_2.11:2.4.5,com.qubole.spark:spark-sql-kinesis_2.11:1.2.0_spark-2.4 \
---class kinesis.hudi.latefile.SparkKinesisConsumerHudiProcessor spark-structured-streaming-kinesis-hudi_2.11-1.0.jar \
-<bucket-name>  <stream-name> <region> <COW/MOR> <table_name>
+--packages org.apache.spark:spark-streaming-kinesis-asl_2.12:3.1.1,com.qubole.spark:spark-sql-kinesis_2.12:1.2.0_spark-3.0 \
+--class kinesis.hudi.latefile.SparkKinesisConsumerHudiProcessor spark-structured-streaming-kinesis-hudi_2.12-1.0.jar \
+<bucket-name>  <stream-name> <region> <COW/MOR> <table_name> <database> <LATEST/TRIM_HORIZON>
 ```
 Example
 ```
-spark-submit \
+sudo spark-submit \
+--deploy-mode cluster \
+--master yarn \
 --conf "spark.serializer=org.apache.spark.serializer.KryoSerializer" \
 --conf "spark.sql.hive.convertMetastoreParquet=false" \
---conf "spk.dynamicAllocation.maxExecutors=10" \
+--conf "spk.dynamicAllocation.maxExecutors=4" \
 --jars /usr/lib/hudi/hudi-spark-bundle.jar,/usr/lib/spark/external/lib/spark-avro.jar \
---packages org.apache.spark:spark-streaming-kinesis-asl_2.11:2.4.5,com.qubole.spark:spark-sql-kinesis_2.11:1.2.0_spark-2.4 \
---class kinesis.hudi.latefile.SparkKinesisConsumerHudiProcessor spark-structured-streaming-kinesis-hudi_2.11-1.0.jar \
-akshaya-firehose-test data-stream-ingest ap-south-1 COW trade_event_late_simulation
-	
+--packages org.apache.spark:spark-streaming-kinesis-asl_2.12:3.1.1,com.qubole.spark:spark-sql-kinesis_2.12:1.2.0_spark-3.0 \
+--class kinesis.hudi.latefile.SparkKinesisConsumerHudiProcessor spark-structured-streaming-kinesis-hudi_2.12-1.0.jar \
+akshaya-hudi-experiments data-stream-ingest ap-south-1 COW equity_trade_records demohudi LATEST	
 	
 ```
 
@@ -89,7 +90,7 @@ spark-shell \
 --conf 'spark.serializer=org.apache.spark.serializer.KryoSerializer' \
 --conf 'spark.sql.hive.convertMetastoreParquet=false' \
 --jars /usr/lib/hudi/hudi-spark-bundle.jar,/usr/lib/spark/external/lib/spark-avro.jar \
---packages org.apache.spark:spark-streaming-kinesis-asl_2.11:2.4.5,com.qubole.spark:spark-sql-kinesis_2.11:1.2.0_spark-2.4
+--packages org.apache.spark:spark-streaming-kinesis-asl_2.12:3.1.1,com.qubole.spark:spark-sql-kinesis_2.12:1.2.0_spark-3.0
 ```
 
 # Use Case 2 - Consume CDC events Published to Kinesis by DMS
@@ -133,8 +134,8 @@ spark-submit \
 --conf "spark.sql.hive.convertMetastoreParquet=false" \
 --conf "spk.dynamicAllocation.maxExecutors=10" \
 --jars /usr/lib/hudi/hudi-spark-bundle.jar,/usr/lib/spark/external/lib/spark-avro.jar \
---packages org.apache.spark:spark-streaming-kinesis-asl_2.11:2.4.5,com.qubole.spark:spark-sql-kinesis_2.11:1.2.0_spark-2.4 \
---class kinesis.hudi.SparkKinesisConsumerHudiProcessor spark-structured-streaming-kinesis-hudi_2.11-1.0.jar \
+--packages org.apache.spark:spark-streaming-kinesis-asl_2.12:3.1.1,com.qubole.spark:spark-sql-kinesis_2.12:1.2.0_spark-3.0 \
+--class kinesis.hudi.SparkKinesisConsumerHudiProcessor spark-structured-streaming-kinesis-hudi_2.12-1.0.jar \
 <bucket-name>  <stream-name> <region> <COW/MOR> <table_name>
 	
 
@@ -147,7 +148,7 @@ spark-shell \
 --conf 'spark.serializer=org.apache.spark.serializer.KryoSerializer' \
 --conf 'spark.sql.hive.convertMetastoreParquet=false' \
 --jars /usr/lib/hudi/hudi-spark-bundle.jar,/usr/lib/spark/external/lib/spark-avro.jar \
---packages org.apache.spark:spark-streaming-kinesis-asl_2.11:2.4.5,com.qubole.spark:spark-sql-kinesis_2.11:1.2.0_spark-2.4
+--packages org.apache.spark:spark-streaming-kinesis-asl_2.12:3.1.1,com.qubole.spark:spark-sql-kinesis_2.12:1.2.0_spark-3.0
 
 ```
 
@@ -172,8 +173,8 @@ spark-submit \
 --conf "spark.sql.hive.convertMetastoreParquet=false" \
 --conf "spk.dynamicAllocation.maxExecutors=10" \
 --jars /usr/lib/hudi/hudi-spark-bundle.jar,/usr/lib/spark/external/lib/spark-avro.jar \
---packages org.apache.spark:spark-streaming-kinesis-asl_2.11:2.4.5,com.qubole.spark:spark-sql-kinesis_2.11:1.2.0_spark-2.4 \
---class kinesis.hudi.SparkKinesisFilePathConsumerHudiProcessor spark-structured-streaming-kinesis-hudi_2.11-1.0.jar \
+--packages org.apache.spark:spark-streaming-kinesis-asl_2.12:3.1.1,com.qubole.spark:spark-sql-kinesis_2.12:1.2.0_spark-3.0 \
+--class kinesis.hudi.SparkKinesisFilePathConsumerHudiProcessor spark-structured-streaming-kinesis-hudi_2.12-1.0.jar \
 <bucket-name>  <stream-name> <region> <COW/MOR> <table_name>
 	
 
@@ -189,7 +190,7 @@ spark-shell \
 --conf 'spark.serializer=org.apache.spark.serializer.KryoSerializer' \
 --conf 'spark.sql.hive.convertMetastoreParquet=false' \
 --jars /usr/lib/hudi/hudi-spark-bundle.jar,/usr/lib/spark/external/lib/spark-avro.jar \
---packages org.apache.spark:spark-streaming-kinesis-asl_2.11:2.4.5,com.qubole.spark:spark-sql-kinesis_2.11:1.2.0_spark-2.4
+--packages org.apache.spark:spark-streaming-kinesis-asl_2.12:3.1.1,com.qubole.spark:spark-sql-kinesis_2.12:1.2.0_spark-3.0
 ```
 # Possible Issues 
 1.  Could not open client transport with JDBC Uri: jdbc:hive2://localhost:10000: java.net.ConnectException: Connection refused (Connection refused) --- The error message could be distracting. Since Glue Catelog integration is enabled , the job should not connect to Hive. In my case the error only happened in Mumbai region while it worked in Virginia ang Oregon. I had "Lake Formation" enabled in which case a role reading/writing to Glue table should have permission granted on Lake Formation. I granted EMR_EC2_DefaultRole role permission to create table, read and write on "default" database in Lake Formation. default database since without explicitely specifying the table with HIVE_DATABASE_OPT_KEY , HUDI writes to default database. 

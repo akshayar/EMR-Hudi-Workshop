@@ -19,6 +19,7 @@ import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.json.GsonJsonParser;
+import org.springframework.context.annotation.Bean;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
@@ -30,7 +31,7 @@ import com.amazonaws.util.StringUtils;
 import software.amazon.awssdk.utils.IoUtils;
 
 @Component
-public class RandomGenerator {
+public class RandomGenerator implements IRandomGenerator {
 	
 	AmazonS3 s3 = AmazonS3ClientBuilder.defaultClient();
 	
@@ -53,6 +54,7 @@ public class RandomGenerator {
 	static Random random = new Random();
 	
 	private DateFormat dateFormate=new SimpleDateFormat("yyMMddHHmm");
+	private DateFormat dateFormate1=new SimpleDateFormat("yyMMdd");
 
 	@PostConstruct
 	void pubish() throws Exception {
@@ -63,14 +65,14 @@ public class RandomGenerator {
 		System.out.println(mapOfRandomizedValues);
 
 	}
-	
-	private List<String> getListOfProperty(String propertyName){
-		return Optional.ofNullable(env.getProperty(propertyName)).map(s->s.split(",")).map(Arrays::asList).orElse(Collections.EMPTY_LIST);
-	}
-	
+	@Override
 	public String createPayload() throws IOException {
 		String payload= randomize(template);
 		return payload;
+	}
+	
+	private List<String> getListOfProperty(String propertyName){
+		return Optional.ofNullable(env.getProperty(propertyName)).map(s->s.split(",")).map(Arrays::asList).orElse(Collections.EMPTY_LIST);
 	}
 
 	private String readTemplate() throws IOException {
@@ -95,9 +97,9 @@ public class RandomGenerator {
 
 	private String randomize(String template) {
 		for (int i = 10; i > 1; i--) {
-			template=template.replaceAll("RANDOM_TEXT"+i, generateRandome("RANDOM_TEXT"+i));
-			template=template.replaceAll("RANDOM_INT"+i, generateRandome("RANDOM_INT"+i));
-			template=template.replaceAll("RANDOM_FLOAT"+i, generateRandome("RANDOM_FLOAT"+i));
+			template=template.replaceAll("RANDOM_TEXT"+i, generateRandom("RANDOM_TEXT"+i));
+			template=template.replaceAll("RANDOM_INT"+i, generateRandom("RANDOM_INT"+i));
+			template=template.replaceAll("RANDOM_FLOAT"+i, generateRandom("RANDOM_FLOAT"+i));
 		}
 		for (String keyS : mapOfRandomizedValues.keySet()) {
 			template=template.replaceAll("RANDOM_"+keyS, generateRandomeSymbols(mapOfRandomizedValues.get(keyS)));
@@ -106,7 +108,9 @@ public class RandomGenerator {
 		template=template.replaceAll("RANDOM_EPOCH",randomEpoch()+"");
 		template=template.replaceAll("EPOCH", System.currentTimeMillis()/1000+"");
 		template=template.replaceAll("DATE_yyMMddHHmm", getEPOCH_yyMMddHHmm());
+		template=template.replaceAll("DATE_yyMMdd", getEPOCH_yyMMdd());
 		template=template.replaceAll("DATE_STRING", new Date()+"");
+		template=template.replaceAll("RANDOM_BOOL",random.nextBoolean()+"");
 		
 		
 		return template;
@@ -116,10 +120,13 @@ public class RandomGenerator {
 	private String getEPOCH_yyMMddHHmm() {
 		return dateFormate.format(new Date());
 	}
+	private String getEPOCH_yyMMdd() {
+		return dateFormate1.format(new Date());
+	}
 	
 	
 	private long randomEpoch() {
-		if(random.nextInt(100)<5) {
+		if(random.nextInt(100)<2) {
 			return System.currentTimeMillis()/1000-random.nextInt(7200);	
 		}else {
 			return System.currentTimeMillis()/1000;
@@ -131,7 +138,7 @@ public class RandomGenerator {
 		return values.get(random.nextInt(values.size()));
 	}
 
-	public static String generateRandome(String templateText) {
+	static String generateRandom(String templateText) {
 		if(templateText.startsWith("RANDOM_TEXT")) {
 			int length=Integer.valueOf(templateText.replaceAll("RANDOM_TEXT", "").trim());
 			return generateRandomString(length);
@@ -151,7 +158,7 @@ public class RandomGenerator {
 	}
 
 
-	public static String generateRandomString(int targetStringLength) {
+	private static String generateRandomString(int targetStringLength) {
 		int leftLimit = 97; // letter 'a'
 		int rightLimit = 122; // letter 'z'
 		return generateRandom(targetStringLength,leftLimit,rightLimit);
@@ -166,13 +173,13 @@ public class RandomGenerator {
 		return generatedString;
 	}
 	
-	public static String generateRandomInt(int targetStringLength) {
+	private static String generateRandomInt(int targetStringLength) {
 		int leftLimit = '0'; // letter 'a'
 		int rightLimit = '9'; // letter 'z'
 		return generateRandom(targetStringLength,leftLimit,rightLimit);
 	}
 	
-	public static String generateRandomDouble(int targetStringLength) {
+	private static String generateRandomDouble(int targetStringLength) {
 		
 		int leftLimit = '0'; // letter 'a'
 		int rightLimit = '9'; // letter 'z'

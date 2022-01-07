@@ -40,9 +40,13 @@ class KineisPublisher {
 	
 	@Value("${intervalMs:100}")
 	int intervalMs=100;
-	
+
+
+
 	@Autowired
-	RandomGenerator randomGenerator;
+	RandomGeneratorFactory randomGeneratorFactory;
+
+	IRandomGenerator randomGenerator;
 	
 	@Value("${aggregationEnabled:false}")
 	private boolean aggregationEnabled;
@@ -51,7 +55,7 @@ class KineisPublisher {
 
 	@PostConstruct
 	void pubish() throws Exception {
-
+		randomGenerator=randomGeneratorFactory.getObject();
 		if (Optional.ofNullable(type).orElse("api").equalsIgnoreCase("api")) {
 			publishAPI();
 		} else {
@@ -60,7 +64,7 @@ class KineisPublisher {
 
 	}
 
-	private void publishKPL() throws IOException {
+	private void publishKPL() throws Exception {
 		// KinesisProducer gets credentials automatically like
 		// DefaultAWSCredentialsProviderChain.
 		// It also gets region automatically from the EC2 metadata service.
@@ -92,14 +96,17 @@ class KineisPublisher {
 			while (true) {
 				String payload;
 				try {
-					payload = randomGenerator.createPayload();
-					System.out.println("SDK Push: " + payload);
-					PutRecordRequest req = PutRecordRequest.builder().streamName(streamName)
-							.data(SdkBytes.fromUtf8String(payload)).partitionKey(partitionPrefix +i%2 ).build();
-					client.putRecord(req);
+					for(int ik=0;ik<10;ik++) {
+						payload = randomGenerator.createPayload();
+						System.out.println("SDK Push: " + payload);
+						PutRecordRequest req = PutRecordRequest.builder().streamName(streamName)
+								.data(SdkBytes.fromUtf8String(payload)).partitionKey(partitionPrefix + i % 2).build();
+						client.putRecord(req);
+					}
+					
 					sleep();
 					i++;
-				} catch (IOException e) {
+				} catch (Exception e) {
 					e.printStackTrace();
 				}
 				

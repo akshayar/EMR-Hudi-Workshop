@@ -1,5 +1,5 @@
 Description: >
-  This Cloudformation template creates resources for the Apache Hudi Workshop. It creates an Amazon EMR Cluster, Amazon Managed Streaming for Kafka Cluster, an Amazon Aurora cluster
+  This Cloudformation template creates an Amazon EMR Cluster
 
 Parameters:
 
@@ -12,57 +12,6 @@ Parameters:
     Description: SSH key (for access to EMR instances)
     Type: AWS::EC2::KeyPair::KeyName
     Default: ee-default-keypair
-
-
-  S3HudiArtifacts:
-    Type: String
-    Description: S3 Location for Hudi artifacts
-    Default: 'emr-workshops-us-west-2'
-
-  NotebookInstanceType:
-    Description: Notebook instance type
-    Type: String
-    Default: ml.t2.medium
-
-Mappings:
-  # Hard values for the subnet masks. These masks define
-  # the range of internal IP addresses that can be assigned.
-  # The VPC can have all IP's from 10.0.0.0 to 10.0.255.255
-  # There are two subnets which cover the ranges:
-  #
-  # 10.0.0.0 - 10.0.0.255
-  # 10.0.1.0 - 10.0.1.255
-  SubnetConfig:
-    VPC:
-      CIDR: '10.192.0.0/16'
-    PublicSubnet1:
-      CIDR: '10.192.10.0/24'
-    PublicSubnet2:
-      CIDR: '10.192.11.0/24'
-    PublicSubnet3:
-      CIDR: '10.192.12.0/24'
-
-  RegionAMI:
-    us-east-1:
-      HVM64: ami-00068cd7555f543d5
-      HVMG2: ami-0a584ac55a7631c0c
-    us-west-2:
-      HVM64: ami-0b5c89eb6257578f2
-      HVMG2: ami-0e09505bc235aa82d
-    us-east-2:
-      HVM64: ami-0dacb0c129b49f529
-    us-west-1:
-      HVM64: ami-0bdb828fd58c52235
-      HVMG2: ami-066ee5fd4a9ef77f1
-    eu-west-1:
-      HVM64: ami-01f14919ba412de34
-      HVMG2: ami-0a7c483d527806435
-    ap-northeast-1:
-      HVM64: ami-06cd52961ce9f0d85
-      HVMG2: ami-053cdd503598e4a9d
-    ap-southeast-1:
-      HVM64: ami-08569b978cc4dfa10
-      HVMG2: ami-0be9df32ae9f92309
 
 
 Resources:
@@ -84,7 +33,6 @@ Resources:
         - Name: Spark
         - Name: Hive
         - Name: Hadoop
-        #AutoScalingRole: 'EMR_AutoScaling_DefaultRole'
       Configurations:
         #- Classification: presto-connector-hive
         #  ConfigurationProperties:
@@ -118,7 +66,7 @@ Resources:
                   SizeInGB: 100
                   VolumeType: gp2
           InstanceCount: 1
-          InstanceType: r5.4xlarge
+          InstanceType: r5.2xlarge
           Market: ON_DEMAND
           Name: 'Master instance group'
         #CoreInstanceGroup:

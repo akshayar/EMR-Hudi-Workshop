@@ -71,7 +71,6 @@ object SparkKinesisConsumerParquetProcessor {
       s3_bucket = args(0) //"akshaya-firehose-test"//
       streamName = args(1) //"hudi-stream-ingest"//
       region = args(2) //"us-west-2"//
-      tableType = args(3) //"COW"//
       tableName = args(4) //"parquet_trade_info"//
 
     }
