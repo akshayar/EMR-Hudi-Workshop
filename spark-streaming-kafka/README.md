@@ -16,19 +16,11 @@ spark-submit \
 --conf 'spark.sql.hive.convertMetastoreParquet=false' \
 --conf "spark.dynamicAllocation.maxExecutors=10" \
 --jars /usr/lib/hudi/hudi-spark-bundle.jar,/usr/lib/spark/external/lib/spark-avro.jar,/usr/lib/spark/jars/httpclient-4.5.9.jar \
---packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.1.1,org.apache.spark:spark-streaming-kafka-0-10_2.12:3.1.1
+--packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.1.1,org.apache.spark:spark-streaming-kafka-0-10_2.12:3.1.1 \
 --class kafka.hudi.latefile.SparkConsumer spark-structured-streaming-kafka-hudi_2.12-1.0.jar \
- <BUCKET_NAME> <KAFKA_BOOTSTRAP_SERVER> <TOPIC> <COW/MOR> <TABLE_NAME> <DB_NAME> <STARTING_POS earliest/lates>
+ <BUCKET_NAME> <KAFKA_BOOTSTRAP_SERVER> <TOPIC> <COW/MOR> <TABLE_NAME> <DB_NAME> <STARTING_POS earliest/latest>
  
- 
- spark-submit \
---conf 'spark.serializer=org.apache.spark.serializer.KryoSerializer' \
---conf 'spark.sql.hive.convertMetastoreParquet=false' \
---conf "spark.dynamicAllocation.maxExecutors=10" \
---jars /usr/lib/hudi/hudi-spark-bundle.jar,/usr/lib/spark/external/lib/spark-avro.jar,/usr/lib/spark/jars/httpclient-4.5.9.jar \
---packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.1.1,org.apache.spark:spark-streaming-kafka-0-10_2.12:3.1.1
---class kafka.hudi.latefile.SparkConsumer spark-structured-streaming-kafka-hudi_2.12-1.0.jar \
- <BUCKET_NAME> <KAFKA_BOOTSTRAP_SERVER> <TOPIC> <COW/MOR> <TABLE_NAME> <DB_NAME> <STARTING_POS earliest/lates>
+
 
 spark-submit \
 --deploy-mode cluster \
