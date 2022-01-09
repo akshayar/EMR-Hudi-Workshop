@@ -2,7 +2,7 @@
 # Spark Command
 ## Message Content pushed to the topic
 The filePath here is the path to the file which got added to S3 by DMS. An S3 event gets published which is consumed by Lambda. The lambda then pushes the event below to the Spart topic which the file path of the file that got ingested. 
-```
+```json
 {
     "filePath": "s3://<bucket-name>/dms-full-load-path/salesdb/SALES_ORDER_DETAIL/20211118-100428844.parquet"
 }
@@ -10,7 +10,7 @@ The filePath here is the path to the file which got added to S3 by DMS. An S3 ev
 
 ## Spark Submit
 
-```aidl
+```shell
 spark-submit \
 --conf 'spark.serializer=org.apache.spark.serializer.KryoSerializer' \
 --conf 'spark.sql.hive.convertMetastoreParquet=false' \
@@ -44,7 +44,7 @@ akshaya-hudi-experiments ip-10-192-11-254.ap-south-1.compute.internal:29092 data
 
 
 ## Spark Shell
-```aidl             
+```shell             
 spark-shell \
 --conf 'spark.serializer=org.apache.spark.serializer.KryoSerializer' \
 --conf 'spark.sql.hive.convertMetastoreParquet=false' \
