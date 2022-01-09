@@ -5,7 +5,7 @@
 2. SSH to master node and execute command to update log level to [log4j.rootCategory=WARN,console] --this is an optional step 
 
 ```
-vi /etc/spark/conf/log4j.properties 
+sudo vi /etc/spark/conf/log4j.properties 
 
 ```
 3. Ensure that EMR role has permission on Kinesis and S3. 

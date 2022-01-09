@@ -53,7 +53,10 @@ object SparkKafkaConsumerHudiProcessor {
     val streamingInputDF = spark.readStream.format("kafka").option("kafka.bootstrap.servers", kafkaBootstrap).option("subscribe", "s3_event_stream").option("startingOffsets", "earliest").load()
 
     val schema= StructType(Array(StructField("filePath",StringType,true)))
-    val jsonDF=streamingInputDF.selectExpr("CAST(value AS STRING)").withColumn("jsonData",from_json(col("value"),schema)).select(col("jsonData.filePath"))
+    val jsonDF=(streamingInputDF
+            .selectExpr("CAST(value AS STRING)")
+            .withColumn("jsonData",from_json(col("value"),schema))
+            .select(col("jsonData.filePath")))
 
     val query = jsonDF.writeStream.foreachBatch{ (batchDF: DataFrame, _: Long) => {
             print(batchDF)
