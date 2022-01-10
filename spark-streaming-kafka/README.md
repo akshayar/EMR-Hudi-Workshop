@@ -47,8 +47,7 @@ spark-shell \
 ```
 
 ## Hudi DeltStreamer
-1. The example below shows following use case JSON data on Kafka. The schema of data is being read from a local files on HDFS. The table is being synched with Glue Catalog 
-2. The instructions below work for EMR Version 6.5.0.
+1. The instructions below work for EMR Version 6.5.0.
 There is following error with EMR Version 6.3.0
 ```shell
 Caused by: java.lang.NoSuchMethodError: org.apache.hadoop.hive.ql.Driver.close()V
@@ -58,29 +57,35 @@ at org.apache.hudi.hive.HoodieHiveClient.updateHiveSQL(HoodieHiveClient.java:374
 at org.apache.hudi.hive.HiveSyncTool.syncHoodieTable(HiveSyncTool.java:122)
 at org.apache.hudi.hive.HiveSyncTool.syncHoodieTable(HiveSyncTool.java:94)
 ```
-3. Run following command for help on DeltaStreamer.
+2. Run following command for help on DeltaStreamer.
 ```shell
 spark-submit \
 --class org.apache.hudi.utilities.deltastreamer.HoodieDeltaStreamer \
 --jars `ls /usr/lib/hudi/hudi-utilities-bundle*.jar` \
 --help
 ```   
-4. Copy Jars
+3. Copy Jars
 ```shell
 wget https://repo1.maven.org/maven2/org/apache/calcite/calcite-core/1.29.0/calcite-core-1.29.0.jar .
 wget https://repo1.maven.org/maven2/org/apache/thrift/libfb303/0.9.3/libfb303-0.9.3.jar .
 sudo cp calcite-core-1.29.0.jar /usr/lib/spark/jars
 sudo cp libfb303-0.9.3.jar /usr/lib/spark/jars
 ```
-5. Copy properties file and schema file to HDFS from where the program will read it.
-   [hudi-delta-streamer/hudi-deltastreamer.properties](hudi-delta-streamer/hudi-deltastreamer.properties)
-   [hudi-delta-streamer/TradeData.avsc](hudi-delta-streamer/TradeData.avsc)
+4. Copy properties file and schema file to HDFS from where the program will read it. Copy of schema is required if you are using FilebasedSchemaProvider.
+   
+   <br>JSON Data , File Schema [hudi-delta-streamer/hudi-deltastreamer-schema-file-json.properties](hudi-delta-streamer/hudi-deltastreamer-schema-file-json.properties)
+   <br>Schema File [hudi-delta-streamer/TradeData.avsc](hudi-delta-streamer/TradeData.avsc)   
+   
+   <br>AVRO Data , Schema Registry [hudi-delta-streamer/hudi-deltastreamer-schema-registry-avro.properties](hudi-delta-streamer/hudi-deltastreamer-schema-registry-avro.properties)
+   
 
 ```shell
 hdfs dfs -copyFromLocal -f TradeData.avsc /
-hdfs dfs -copyFromLocal -f hudi-deltastreamer.properties /
+hdfs dfs -copyFromLocal -f hudi-deltastreamer-schema-file-json.properties /
 ```
-6. Run Spark Submit program
+5. Run Spark Submit program. 
+   JSON data on Kafka, Schema read from a local files on HDFS. The table is being synched with Glue Catalog
+
 ```shell
 
 spark-submit \
@@ -97,7 +102,30 @@ spark-submit \
 --target-table table_delta_streamer_cow_2 \
 --op UPSERT \
 --source-ordering-field tradeId \
---props  hdfs:///hudi-deltastreamer.properties
+--props  hdfs:///hudi-deltastreamer-schema-file-json.properties
+
+```
+
+7. Run Spark Submit program. 
+   AVRO data on Kafka, Schema read from schema registery. The table is being synched with Glue Catalog
+
+```shell
+
+spark-submit \
+--class  org.apache.hudi.utilities.deltastreamer.HoodieDeltaStreamer \
+--jars `ls /usr/lib/hudi/hudi-utilities-bundle*.jar ` \
+--checkpoint s3://akshaya-hudi-experiments/demo/kafka-stream-data-checkpoint/table_delta_streamer_cow_2_avro/ \
+--continuous  \
+--enable-hive-sync \
+--schemaprovider-class org.apache.hudi.utilities.schema.SchemaRegistryProvider \
+--source-class org.apache.hudi.utilities.sources.AvroKafkaSource \
+--spark-master yarn \
+--table-type COPY_ON_WRITE \
+--target-base-path s3://akshaya-hudi-experiments/demo/hudi/table_delta_streamer_cow_2 \
+--target-table table_delta_streamer_cow_2 \
+--op UPSERT \
+--source-ordering-field tradeId \
+--props  hdfs:///hudi-deltastreamer-schema-registry-avro.properties
 
 ```
 ### Hudi Delta Streamer : To Do 
