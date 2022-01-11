@@ -128,6 +128,31 @@ spark-submit \
 --props  hdfs:///hudi-deltastreamer-schema-registry-avro.properties
 
 ```
+
+## Hudi DeltaStreamer with DMS+kafka
+```shell
+ aws dms create-endpoint --endpoint-identifier s3-target-dms \
+ --engine-name s3 --endpoint-type target \
+ --s3-settings '{"ServiceAccessRoleArn": "arn:aws:iam::799223504601:role/dms-s3-target-role",  "BucketFolder": "dms/","BucketName": "akshaya-hudi-experiments", "DataFormat": "parquet" }'
+```
+```shell
+spark-submit \
+--jars /usr/lib/spark/external/lib/spark-avro.jar \
+--class  org.apache.hudi.utilities.deltastreamer.HoodieDeltaStreamer /usr/lib/hudi/hudi-utilities-bundle.jar \
+--continuous  \
+--enable-hive-sync \
+--source-class org.apache.hudi.utilities.sources.ParquetDFSSource \
+--spark-master yarn \
+--table-type COPY_ON_WRITE \
+--target-base-path s3://akshaya-hudi-experiments/demo/hudi/aws_dms_rds \
+--target-table aws_dms_rds \
+--op UPSERT \
+--source-ordering-field lastupdate \
+--transformer-class org.apache.hudi.utilities.transform.AWSDmsTransformer \
+--payload-class org.apache.hudi.common.model.AWSDmsAvroPayload \
+--props  hdfs:///hudi-deltastreamer-dms.properties
+
+```
 ### Hudi Delta Streamer : To Do 
 1. Try with spark.executor.extraClassPath and spark.driver.extraClassPath configuration.
 ```shell
